@@ -2,9 +2,9 @@
 module fsqrt_stage1(
     input wire [31:0] s,
     output wire [63:0] target,
-    output reg [63:0] b1,
-    output reg [63:0] c1,
-    output reg [63:0] d1
+    output wire [63:0] b1,
+    output wire [63:0] c1,
+    output wire [63:0] d1
 );
 
 // 符号1bit、指数8bit、仮数23bitを読み出す
@@ -306,7 +306,7 @@ module fsqrt_stage2(
     input wire [63:0] b1,
     input wire [63:0] c1,
     input wire [63:0] d1,
-    output reg [63:0] x1
+    output wire [63:0] x1
 );
 
 wire [63:0] e1;
@@ -318,11 +318,11 @@ endmodule
 
 // NOTE: stage3
 module fsqrt_stage3(
-    input reg [63:0] target,
-    input reg [63:0] x1,
-    output reg [63:0] b2,
-    output reg [63:0] c2,
-    output reg [63:0] d2
+    input wire [63:0] target,
+    input wire [63:0] x1,
+    output wire [63:0] b2,
+    output wire [63:0] c2,
+    output wire [63:0] d2
 );
 
 // NOTE: Newton法を回す x_{n+1} = 1/2 (3 x_n + a / x_n)
@@ -414,23 +414,23 @@ NOTE: Signature
 module fsqrt_stage1(
     input wire [31:0] s,
     output wire [63:0] target,
-    output reg [63:0] b1,
-    output reg [63:0] c1,
-    output reg [63:0] d1
+    output wire [63:0] b1,
+    output wire [63:0] c1,
+    output wire [63:0] d1
 );
 module fsqrt_stage2(
     input wire [63:0] target,
     input wire [63:0] b1,
     input wire [63:0] c1,
     input wire [63:0] d1,
-    output reg [63:0] x1
+    output wire [63:0] x1
 );
 module fsqrt_stage3(
-    input reg [63:0] target,
-    input reg [63:0] x1,
-    output reg [63:0] b2,
-    output reg [63:0] c2,
-    output reg [63:0] d2
+    input wire [63:0] target,
+    input wire [63:0] x1,
+    output wire [63:0] b2,
+    output wire [63:0] c2,
+    output wire [63:0] d2
 );
 module fsqrt_stage4(
     input wire [31:0] s,

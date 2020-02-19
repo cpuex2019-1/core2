@@ -45,14 +45,14 @@
     function is_write_inst(input [5:0] opecode);
         begin
             is_write_inst = opecode != INST_SW && opecode != INST_SF &&
-                            opecode != INST_J && opecode != INST_OUTB && is_branch_inst(opecode);
+                            opecode != INST_J && opecode != INST_OUTB && ~is_branch_inst(opecode);
         end
     endfunction
 
     function use_ft_inst(input [5:0] opecode);
         begin
             use_ft_inst = opecode == INST_FADD || opecode == INST_FSUB ||
-                          opecode == INST_FMUL || opecode == INST_FINV;
+                          opecode == INST_FMUL || opecode == INST_FDIV;
         end
     endfunction
 `endif

@@ -196,7 +196,8 @@ module fmul(
 );
 
 reg [31:0] s2_reg, t2_reg;
-reg [47:0] mantissa1_reg, mantissa2_reg;
+wire [47:0] mantissa1_reg;
+reg [47:0] mantissa2_reg;
 
 fmul_stage1 u1(s, t, mantissa1_reg);
 fmul_stage2 u2(s2_reg,t2_reg,mantissa2_reg,d,overflow,underflow);

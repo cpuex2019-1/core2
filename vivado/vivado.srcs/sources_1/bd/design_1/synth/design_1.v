@@ -1,7 +1,7 @@
 //Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2019.2 (win64) Build 2708876 Wed Nov  6 21:40:23 MST 2019
-//Date        : Mon Feb 17 14:45:15 2020
+//Date        : Wed Feb 19 21:17:54 2020
 //Host        : LAPTOP-ASL5AMB1 running 64-bit major release  (build 9200)
 //Command     : generate_target design_1.bd
 //Design      : design_1
@@ -170,7 +170,6 @@ module design_1
   design_1_exec_0_0 exec_0
        (.clk(clk_wiz_0_clk_out1),
         .done(exec_0_done),
-        .enable(exec_0_done),
         .fmode1(decode_0_fmode1_reg),
         .fmode2(decode_0_fmode2_reg),
         .mem_addr(exec_0_mem_addr),

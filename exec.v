@@ -18,7 +18,7 @@ module exec(
 	output wire [31:0] next_pc,
 	output wire wenable,
 	output wire wfmode,
-	output wire [4:0] wwire,
+	output wire [4:0] wreg,
 	output wire [31:0] wdata,
 
 	output wire uart_wenable,
@@ -61,7 +61,7 @@ module exec(
 		next_pc,
 		wenable,
 		wfmode,
-		wwire,
+		wreg,
 		wdata,
 
 		uart_wenable,

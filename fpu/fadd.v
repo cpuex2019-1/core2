@@ -372,9 +372,12 @@ module fadd(
 );
 
 reg [31:0] s2_reg, t2_reg;
-reg sticky1_reg, sticky2_reg;
-reg [26:0] mantissa1_reg, mantissa2_reg;
-reg [7:0] scale1_reg, scale2_reg;
+wire sticky1_reg;
+reg sticky2_reg;
+wire [26:0] mantissa1_reg;
+reg [26:0] mantissa2_reg;
+wire [7:0] scale1_reg;
+reg [7:0] scale2_reg;
 
 fadd_stage1 u1(s, t, mantissa1_reg, scale1_reg, sticky1_reg);
 fadd_stage2 u2(s2_reg,t2_reg,mantissa2_reg,scale2_reg,sticky2_reg,d,overflow);

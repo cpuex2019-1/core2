@@ -12,7 +12,7 @@ module test();
 	design_1_wrapper s1(
 		clk_n,
 		clk_p,
-		reset,
+		rst,
 		rxd,
 		txd);
 

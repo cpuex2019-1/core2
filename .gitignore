@@ -1,1 +1,4 @@
 vivado/vivado.cache/*
+vivado/vivado.sim/*
+vivado/vivado.ip_user_files/*
+*.wcfg
