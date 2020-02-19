@@ -371,7 +371,7 @@ module fadd(
   output wire underflow
 );
 
-reg [31:0] s1_reg, t1_reg, s2_reg, t2_reg;
+reg [31:0] s2_reg, t2_reg;
 reg sticky1_reg, sticky2_reg;
 reg [26:0] mantissa1_reg, mantissa2_reg;
 reg [7:0] scale1_reg, scale2_reg;
@@ -380,10 +380,8 @@ fadd_stage1 u1(s, t, mantissa1_reg, scale1_reg, sticky1_reg);
 fadd_stage2 u2(s2_reg,t2_reg,mantissa2_reg,scale2_reg,sticky2_reg,d,overflow);
 
 always @(posedge clk) begin
-  s1_reg <= s;
-  t1_reg <= t;
-  s2_reg <= s1_reg;
-  t2_reg <= t1_reg;
+  s2_reg <= s;
+  t2_reg <= t;
   mantissa2_reg <= mantissa1_reg;
   scale2_reg <= scale1_reg;
   sticky2_reg <= sticky1_reg;

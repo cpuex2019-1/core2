@@ -15,8 +15,7 @@ module fetch(
 	input wire rstn
 );
 
-	reg[31:0] pc_history[1:0];
-	reg pcenable_;
+	reg[31:0] pc_history;
 	wire[31:0] pc_;
 	wire[5:0] opecode;
 
@@ -24,38 +23,29 @@ module fetch(
 	assign jr_reg = command[20:16];
 
 	// TODO : 分岐予測 BNE, BGE, BLE, BEQF, BLTF
-	assign pc_ = (pcenable && pc_history[1] != next_pc) || pcenable_ ? next_pc :
-				 opecode == INST_J || opecode == INST_JAL ? {4'b0000, command[25:0], 2'b00} :			//J, JAL
-				 (opecode[5]^opecode[4]) && opecode[3] && opecode[2] ? pc + 32'h4 :						// B**
-				 opecode == INST_JALR ? {jr_data[31:2], 2'b00} : pc + 32'h4;							// JALR
+	assign pc_ = pcenable && pc_history != next_pc ? next_pc :
+				 opecode == INST_J || opecode == INST_JAL ? {4'b0000, command[25:0], 2'b00} :	//J, JAL
+				 is_branch_inst(opecode) ? pc + 32'h4 :											// B**
+				 opecode == INST_JALR ? {jr_data[31:2], 2'b00} : pc + 32'h4;					// JALR
 
 	assign inst_addr = pc_[18:2];
 
 	always @(posedge clk) begin
 		if(~rstn) begin
 			pc <= 32'hfffffffc;
-			pc_history[0] <= 32'hffffffff;
-			pc_history[1] <= 32'hffffffff;
-			pcenable_ <= 1'b0;
+			pc_history <= 32'hffffffff;
 		end else begin
 			done <= 1'b0;
 			if(enable) begin
 				pc <= pc_;
-				pcenable_ <= 1'b0;
-				pc_history[0] <= pc;
-				pc_history[1] <= pc_history[0];
-			end
-			if(pcenable && pc_history[1] != next_pc) begin
-				pcenable_ <= enable ? 1'b0 : 1'b1;
-				pc_history[0] <= 32'hffffffff;
-				pc_history[1] <= 32'hffffffff;
+				pc_history <= pc;
 			end
 		end
 	end
 
 	always @(negedge clk) begin
 		if(~rstn) begin
-			command <= 32'h0;
+			command <= {INST_J, 26'h0};
 		end else begin
 			if(done) begin
 				command <= inst_data;

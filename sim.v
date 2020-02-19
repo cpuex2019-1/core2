@@ -3,18 +3,18 @@
 module test();
 	localparam STEP = 8;
 
+	reg clk_n;
+	reg clk_p;
 	reg rst;
 	reg rxd;
 	wire txd;
-	reg clk_n;
-	reg clk_p;
 
 	design_1_wrapper s1(
+		clk_n,
+		clk_p,
 		reset,
 		rxd,
-		txd,
-		clk_n,
-		clk_p);
+		txd);
 
 	always begin
 		clk_p = 1; clk_n = 0; #(STEP/2);

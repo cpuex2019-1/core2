@@ -1,9 +1,7 @@
 `default_nettype none
-`include "inst_set.sv"
 
 module exec(
-	input wire enable,
-	output reg done,
+	output wire done,
 
 	input wire[5:0] opecode,
 	input wire[15:0] offset,
@@ -16,17 +14,17 @@ module exec(
 	input wire fmode1,
 	input wire fmode2,
 
-	output reg pcenable,
-	output reg [31:0] next_pc,
-	output reg wenable,
-	output reg wfmode,
-	output reg [4:0] wreg,
-	output reg [31:0] wdata,
+	output wire pcenable,
+	output wire [31:0] next_pc,
+	output wire wenable,
+	output wire wfmode,
+	output wire [4:0] wwire,
+	output wire [31:0] wdata,
 
-	output reg uart_wenable,
+	output wire uart_wenable,
 	input wire uart_wdone,
-	output reg[31:0] uart_wd,
-	output reg uart_renable,
+	output wire[31:0] uart_wd,
+	output wire uart_renable,
 	input wire uart_rdone,
 	input wire[31:0] uart_rd,
 
@@ -40,23 +38,49 @@ module exec(
 	input wire rstn
 );
 
-	reg[31:0] fs, ft;
-	wire[31:0] fadd_d, fmul_d, finv_d, sqrt_d, ftoi_d, itof_d, floor_d;
-	wire fadd_of, fmul_of, finv_of, fmul_uf, finv_uf;
+	wire stop, done_;
+	assign done = done_ && ~stop;
 
-	fadd u_fadd(clk, fs, ft, fadd_d, fadd_of);
-	fmul u_fmul(clk, fs, ft, fmul_d, fmul_of, fmul_uf);
-	finv u_finv(clk, ft, finv_d, finv_of, finv_uf);
-	fsqrt u_fsqrt(clk, fs, sqrt_d);
-	ftoi u_ftoi(fs, ftoi_d);
-	itof u_itof(fs, itof_d);
-	floor u_floor(fs, floor_d);
+	exec_inner u1(
+		done_,
+		done_,
+		stop,
 
-	always @(posedge clk) begin
-		if(~rstn) begin
-		end else begin
-		end
-	end
+		opecode,
+		offset,
+		pc,
+		rs,
+		rt,
+		rd_no,
+		rs_no,
+		rt_no,
+		fmode1,
+		fmode2,
+
+		pcenable,
+		next_pc,
+		wenable,
+		wfmode,
+		wwire,
+		wdata,
+
+		uart_wenable,
+		uart_wdone,
+		uart_wd,
+		uart_renable,
+		uart_rdone,
+		uart_rd,
+
+		mem_addr,
+		mem_wdata,
+		mem_rdata,
+		mem_enable,
+		mem_wea,
+
+		clk,
+		rstn
+	);
+
 
 endmodule //exec
 

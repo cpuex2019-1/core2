@@ -195,17 +195,15 @@ module fmul(
   output wire underflow
 );
 
-reg [31:0] s1_reg, t1_reg, s2_reg, t2_reg;
+reg [31:0] s2_reg, t2_reg;
 reg [47:0] mantissa1_reg, mantissa2_reg;
 
 fmul_stage1 u1(s, t, mantissa1_reg);
 fmul_stage2 u2(s2_reg,t2_reg,mantissa2_reg,d,overflow,underflow);
 
 always @(posedge clk) begin
-  s1_reg <= s;
-  t1_reg <= t;
-  s2_reg <= s1_reg;
-  t2_reg <= t1_reg;
+  s2_reg <= s;
+  t2_reg <= t;
   mantissa2_reg <= mantissa1_reg;
 end
 

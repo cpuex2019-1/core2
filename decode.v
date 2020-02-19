@@ -1,4 +1,5 @@
 `default_nettype none
+`include "inst_set.sv"
 
 module decode(
 	input wire enable,
@@ -29,7 +30,7 @@ module decode(
 );
 
 	assign reg1 = command[20:16];
-	assign reg2 = command[29:26] == 4'b0000 || ((command[31]^command[30]) && command[29] && command[28]) ? command[25:21] : command[15:11];
+	assign reg2 = command[29:26] == 4'b0000 || is_branch_inst(command[31:26]) ? command[25:21] : command[15:11];
 	assign fmode1 = command[30] && command[29:26] != 4'b0000;
 	assign fmode2 = command[30];
 
