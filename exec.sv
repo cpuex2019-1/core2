@@ -1,6 +1,18 @@
 `default_nettype none
 `include "inst_set.sv"
 
+function lti(input [31:0] a, input [31:0] b);
+	begin
+		lti = a[31]^b[31] ? a[31] : a < b;
+	end
+endfunction
+
+function eqf(input [31:0] a, input [31:0] b);
+	begin
+		eqf = a[31]^b[31] ? a[30:0] == 31'h0 && b[30:0] == 31'h0 : a == b;
+	end
+endfunction
+
 function ltf(input [31:0] a, input [31:0] b);
 	begin
 		ltf = (a[31] == b[31] && ((a[30:0] < b[30:0])^a[31])) || (a[31] != b[31] && a[31] && (b[30:0] != 31'h0 || a[30:0] != 31'h0));
@@ -219,16 +231,16 @@ module exec_inner(
 					end else if(opecode == INST_JALR) begin
 						next_pc <= {rs_0[31:2], 2'b00};
 						data_1 <= pc + 32'h4;
+					end else if(opecode == INST_SLT) begin
+						data_1 <= {31'h0, lti(rs_0, rt_0)};
 					end else if(opecode == INST_SLTF) begin
 						data_1 <= {31'h0, ltf(rs_0, rt_0)};
 					end else if(opecode == INST_BNE) begin
 						next_pc <= rt_0 != rs_0 ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
-					end else if(opecode == INST_BGE) begin
-						next_pc <= rt_0 >= rs_0 ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
 					end else if(opecode == INST_BLE) begin
-						next_pc <= rt_0 <= rs_0 ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
+						next_pc <= ~lti(rs_0, rt_0) ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
 					end else if(opecode == INST_BEQF) begin
-						next_pc <= rt_0 == rs_0 ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
+						next_pc <= eqf(rs_0, rt_0) ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
 					end else if(opecode == INST_BLTF) begin
 						next_pc <= ltf(rt_0, rs_0) ? pc + {{14{offset[15]}}, offset, 2'h0} : pc + 32'h4;
 					end else if(opecode == INST_OUTB) begin

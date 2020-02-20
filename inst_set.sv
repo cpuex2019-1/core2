@@ -26,9 +26,9 @@
     parameter INST_J      = 6'b00_1011;
     parameter INST_JAL    = 6'b00_1100;
     parameter INST_JALR   = 6'b00_1101;
+    parameter INST_SLT    = 6'b00_0111;
     parameter INST_SLTF   = 6'b01_0010;
     parameter INST_BNE    = 6'b10_1100;
-    parameter INST_BGE    = 6'b10_1101;
     parameter INST_BLE    = 6'b10_1110;
     parameter INST_BEQF   = 6'b01_1100;
     parameter INST_BLTF   = 6'b01_1101;
