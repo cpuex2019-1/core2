@@ -53,7 +53,7 @@ module exec_inner(
 	input wire rstn
 );
 
-	reg[31:0] fs, ft;
+	reg[31:0] fs, ft, fs_div;
 	wire[31:0] fadd_d, fmul_d, finv_d, sqrt_d, ftoi_d, itof_d, floor_d;
 	wire fadd_of, fmul_of, finv_of, fmul_uf, finv_uf;
 
@@ -114,7 +114,7 @@ module exec_inner(
 
 	assign stall = (is_branch_inst(opecode_1) || opecode_1 == INST_JALR) && pc != next_pc;
 	assign stop = ((do_forward(opecode_1, fmode1, rd_no_1, rs_no) || do_forward(opecode_1, fmode2, rd_no_1, rt_no)) && |wait_1[7:1]) ||
-					(opecode_1 == INST_FDIV && use_ft_inst(opecode) && wait_1[2]) ||
+					(opecode_1 == INST_FDIV && use_fpu_inst(opecode) && wait_1[2]) ||
 					(opecode == INST_OUTB && opecode_1 == INST_OUTB && wait_1[7] && ~uart_wdone) ||
 					(opecode[3:0] == 4'b1111 && opecode_1[3:0] == 4'b1111 && wait_1[7] && ~uart_rdone);
 
@@ -169,6 +169,7 @@ module exec_inner(
 					pcenable <= is_branch_inst(opecode) || opecode == INST_JALR;
 					fs <= rs_0;
 					ft <= rt_0;
+					fs_div <= fs;
 					if(opecode[3:0] == 4'b0000) begin
 					end else if(opecode[3:0] == 4'b0001) begin
 						wait_1 <= 8'h1;
@@ -263,6 +264,7 @@ module exec_inner(
 				data_2 <= data_select_2;
 			end
 			if(opecode_1 == INST_FDIV && wait_1[2]) begin
+				fs <= fs_div;
 				ft <= finv_d;
 				if(enable) begin
 					opecode_2 <= INST_FMUL;
@@ -271,6 +273,7 @@ module exec_inner(
 				end
 			end
 			if(opecode_2 == INST_FDIV && wait_2[2]) begin
+				fs <= fs_div;
 				ft <= finv_d;
 				opecode_2 <= INST_FMUL;
 			end

@@ -129,7 +129,7 @@
                 "value_src": "default_prop"
               },
               "FREQ_HZ": {
-                "value": "100000000",
+                "value": "50000000",
                 "value_src": "ip_prop"
               },
               "PHASE": {
@@ -173,7 +173,7 @@
                 "value_src": "constant"
               },
               "FREQ_HZ": {
-                "value": "100000000",
+                "value": "50000000",
                 "value_src": "ip_prop"
               },
               "ID_WIDTH": {
@@ -395,7 +395,7 @@
                 "value_src": "default_prop"
               },
               "FREQ_HZ": {
-                "value": "100000000",
+                "value": "50000000",
                 "value_src": "ip_prop"
               },
               "PHASE": {
@@ -431,6 +431,12 @@
           "C_BAUDRATE": {
             "value": "115200"
           },
+          "C_S_AXI_ACLK_FREQ_HZ": {
+            "value": "50000000"
+          },
+          "C_S_AXI_ACLK_FREQ_HZ_d": {
+            "value": "50.0"
+          },
           "UARTLITE_BOARD_INTERFACE": {
             "value": "rs232_uart"
           },
@@ -443,14 +449,20 @@
         "vlnv": "xilinx.com:ip:clk_wiz:6.0",
         "xci_name": "design_1_clk_wiz_0_0",
         "parameters": {
+          "CLKOUT1_JITTER": {
+            "value": "148.677"
+          },
+          "CLKOUT1_REQUESTED_OUT_FREQ": {
+            "value": "50.000"
+          },
           "CLKOUT2_JITTER": {
-            "value": "113.676"
+            "value": "129.666"
           },
           "CLKOUT2_PHASE_ERROR": {
             "value": "98.575"
           },
           "CLKOUT2_REQUESTED_OUT_FREQ": {
-            "value": "200.000"
+            "value": "100.000"
           },
           "CLKOUT2_USED": {
             "value": "true"
@@ -458,8 +470,11 @@
           "CLK_IN1_BOARD_INTERFACE": {
             "value": "default_sysclk_300"
           },
+          "MMCM_CLKOUT0_DIVIDE_F": {
+            "value": "20.000"
+          },
           "MMCM_CLKOUT1_DIVIDE": {
-            "value": "5"
+            "value": "10"
           },
           "NUM_OUT_CLKS": {
             "value": "2"
@@ -663,7 +678,7 @@
                 "value_src": "default_prop"
               },
               "FREQ_HZ": {
-                "value": "100000000",
+                "value": "50000000",
                 "value_src": "ip_prop"
               },
               "PHASE": {
@@ -747,7 +762,7 @@
                 "value_src": "default_prop"
               },
               "FREQ_HZ": {
-                "value": "100000000",
+                "value": "50000000",
                 "value_src": "ip_prop"
               },
               "PHASE": {
@@ -908,7 +923,7 @@
                 "value_src": "default_prop"
               },
               "FREQ_HZ": {
-                "value": "100000000",
+                "value": "50000000",
                 "value_src": "ip_prop"
               },
               "PHASE": {
@@ -931,16 +946,16 @@
       }
     },
     "interface_nets": {
-      "default_sysclk_300_1": {
-        "interface_ports": [
-          "default_sysclk_300",
-          "clk_wiz_0/CLK_IN1_D"
-        ]
-      },
       "axi_uartlite_0_UART": {
         "interface_ports": [
           "rs232_uart",
           "axi_uartlite_0/UART"
+        ]
+      },
+      "default_sysclk_300_1": {
+        "interface_ports": [
+          "default_sysclk_300",
+          "clk_wiz_0/CLK_IN1_D"
         ]
       },
       "uart_buffer_0_uart": {

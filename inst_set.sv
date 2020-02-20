@@ -55,4 +55,14 @@
                           opecode == INST_FMUL || opecode == INST_FDIV;
         end
     endfunction
+
+    function use_fpu_inst(input [5:0] opecode);
+        begin
+            use_fpu_inst = opecode == INST_FADD || opecode == INST_FSUB ||
+                          opecode == INST_FMUL || opecode == INST_FDIV ||
+                          opecode == INST_SQRT || opecode == INST_FTOI ||
+                          opecode == INST_ITOF || opecode == INST_FLOOR;
+        end
+    endfunction
+
 `endif
