@@ -67,11 +67,10 @@ module exec_inner(
 
 	reg[31:0] fs, ft, fs_div;
 	wire[31:0] fadd_d, fmul_d, finv_d, sqrt_d, ftoi_d, itof_d, floor_d;
-	wire fadd_of, fmul_of, finv_of, fmul_uf, finv_uf;
 
-	fadd u_fadd(clk, fs, ft, fadd_d, fadd_of);
-	fmul u_fmul(clk, fs, ft, fmul_d, fmul_of, fmul_uf);
-	finv u_finv(clk, ft, finv_d, finv_of, finv_uf);
+	fadd u_fadd(clk, fs, ft, fadd_d);
+	fmul u_fmul(clk, fs, ft, fmul_d);
+	finv u_finv(clk, ft, finv_d);
 	fsqrt u_fsqrt(clk, fs, sqrt_d);
 	ftoi u_ftoi(fs, ftoi_d);
 	itof u_itof(fs, itof_d);

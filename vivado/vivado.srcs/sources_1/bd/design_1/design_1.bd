@@ -15,8 +15,8 @@
       "rst_clk_wiz_0_100M": "",
       "inst_memory": "",
       "blk_mem_gen_0": "",
-      "exec_0": "",
       "decode_0": "",
+      "exec_0": "",
       "fetch_0": ""
     },
     "interface_ports": {
@@ -510,6 +510,110 @@
           }
         }
       },
+      "decode_0": {
+        "vlnv": "xilinx.com:module_ref:decode:1.0",
+        "xci_name": "design_1_decode_0_0",
+        "reference_info": {
+          "ref_type": "hdl",
+          "ref_name": "decode",
+          "boundary_crc": "0x0"
+        },
+        "ports": {
+          "enable": {
+            "direction": "I"
+          },
+          "pc": {
+            "direction": "I",
+            "left": "31",
+            "right": "0"
+          },
+          "command": {
+            "direction": "I",
+            "left": "31",
+            "right": "0"
+          },
+          "opecode": {
+            "direction": "O",
+            "left": "5",
+            "right": "0"
+          },
+          "offset": {
+            "direction": "O",
+            "left": "15",
+            "right": "0"
+          },
+          "pc_out": {
+            "direction": "O",
+            "left": "31",
+            "right": "0"
+          },
+          "rs": {
+            "direction": "O",
+            "left": "31",
+            "right": "0"
+          },
+          "rt": {
+            "direction": "O",
+            "left": "31",
+            "right": "0"
+          },
+          "rd_no": {
+            "direction": "O",
+            "left": "4",
+            "right": "0"
+          },
+          "rs_no": {
+            "direction": "O",
+            "left": "4",
+            "right": "0"
+          },
+          "rt_no": {
+            "direction": "O",
+            "left": "4",
+            "right": "0"
+          },
+          "fmode1_reg": {
+            "direction": "O"
+          },
+          "fmode2_reg": {
+            "direction": "O"
+          },
+          "fmode1": {
+            "direction": "O"
+          },
+          "fmode2": {
+            "direction": "O"
+          },
+          "reg1": {
+            "direction": "O",
+            "left": "4",
+            "right": "0"
+          },
+          "reg2": {
+            "direction": "O",
+            "left": "4",
+            "right": "0"
+          },
+          "reg_out1": {
+            "direction": "I",
+            "left": "31",
+            "right": "0"
+          },
+          "reg_out2": {
+            "direction": "I",
+            "left": "31",
+            "right": "0"
+          },
+          "clk": {
+            "type": "clk",
+            "direction": "I"
+          },
+          "rstn": {
+            "type": "rst",
+            "direction": "I"
+          }
+        }
+      },
       "exec_0": {
         "vlnv": "xilinx.com:module_ref:exec:1.0",
         "xci_name": "design_1_exec_0_0",
@@ -635,110 +739,6 @@
           "mem_wea": {
             "direction": "O",
             "left": "3",
-            "right": "0"
-          },
-          "clk": {
-            "type": "clk",
-            "direction": "I"
-          },
-          "rstn": {
-            "type": "rst",
-            "direction": "I"
-          }
-        }
-      },
-      "decode_0": {
-        "vlnv": "xilinx.com:module_ref:decode:1.0",
-        "xci_name": "design_1_decode_0_0",
-        "reference_info": {
-          "ref_type": "hdl",
-          "ref_name": "decode",
-          "boundary_crc": "0x0"
-        },
-        "ports": {
-          "enable": {
-            "direction": "I"
-          },
-          "pc": {
-            "direction": "I",
-            "left": "31",
-            "right": "0"
-          },
-          "command": {
-            "direction": "I",
-            "left": "31",
-            "right": "0"
-          },
-          "opecode": {
-            "direction": "O",
-            "left": "5",
-            "right": "0"
-          },
-          "offset": {
-            "direction": "O",
-            "left": "15",
-            "right": "0"
-          },
-          "pc_out": {
-            "direction": "O",
-            "left": "31",
-            "right": "0"
-          },
-          "rs": {
-            "direction": "O",
-            "left": "31",
-            "right": "0"
-          },
-          "rt": {
-            "direction": "O",
-            "left": "31",
-            "right": "0"
-          },
-          "rd_no": {
-            "direction": "O",
-            "left": "4",
-            "right": "0"
-          },
-          "rs_no": {
-            "direction": "O",
-            "left": "4",
-            "right": "0"
-          },
-          "rt_no": {
-            "direction": "O",
-            "left": "4",
-            "right": "0"
-          },
-          "fmode1_reg": {
-            "direction": "O"
-          },
-          "fmode2_reg": {
-            "direction": "O"
-          },
-          "fmode1": {
-            "direction": "O"
-          },
-          "fmode2": {
-            "direction": "O"
-          },
-          "reg1": {
-            "direction": "O",
-            "left": "4",
-            "right": "0"
-          },
-          "reg2": {
-            "direction": "O",
-            "left": "4",
-            "right": "0"
-          },
-          "reg_out1": {
-            "direction": "I",
-            "left": "31",
-            "right": "0"
-          },
-          "reg_out2": {
-            "direction": "I",
-            "left": "31",
             "right": "0"
           },
           "clk": {
@@ -1040,8 +1040,8 @@
           "rst_clk_wiz_0_100M/slowest_sync_clk",
           "core_wrapper_0/clk",
           "blk_mem_gen_0/clka",
-          "exec_0/clk",
           "decode_0/clk",
+          "exec_0/clk",
           "fetch_0/clk"
         ]
       },
@@ -1057,8 +1057,8 @@
           "axi_uartlite_0/s_axi_aresetn",
           "uart_buffer_0/rstn",
           "core_wrapper_0/rstn",
-          "exec_0/rstn",
           "decode_0/rstn",
+          "exec_0/rstn",
           "fetch_0/rstn"
         ]
       },

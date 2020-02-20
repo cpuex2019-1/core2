@@ -375,10 +375,7 @@ assign mantissa_d =
     mantissa_s == 8'd0 ? mantissa_s : x2[30:8] + {22'b0, flag};
 
 // 出力する
-wire overflow, underflow;
 assign d = {sign_d, exponent_d, mantissa_d}; 
-assign overflow = 1'b0;
-assign underflow = 1'b0;
 
 endmodule
 
@@ -387,9 +384,7 @@ endmodule
 module finv(
     input wire clk,
     input wire [31:0] s,
-    output wire [31:0] d,
-    output wire overflow,
-    output wire underflow
+    output wire [31:0] d
 );
 
 wire [31:0] wire_s1, wire_s2, wire_s3, wire_s4;

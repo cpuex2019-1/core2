@@ -110,8 +110,7 @@ module fadd_stage2(
   input wire [26:0] one_mantissa_d_27bit,
   input wire [7:0] relative_scale,
   input wire for_sticky,
-  output wire [31:0] d,
-  output wire overflow
+  output wire [31:0] d
 );
 
 // 符号1bit、指数8bit、仮数23bitを読み出す
@@ -341,9 +340,6 @@ assign d =
     d_is_denormalized ? {sign_d, 8'd0, mantissa_d} :
     {sign_d, exponent_d, mantissa_d};
 
-assign overflow =
-    (exponent_d == 8'b11111111 && exponent_s != 8'b11111111 && exponent_t != 8'b11111111 && ~d_is_zero) ? 1 : 0;
-
 endmodule
 
 /*
@@ -366,9 +362,7 @@ module fadd(
   input wire clk,
   input wire [31:0] s,
   input wire [31:0] t,
-  output wire [31:0] d,
-  output wire overflow,
-  output wire underflow
+  output wire [31:0] d
 );
 
 reg [31:0] s2_reg, t2_reg;
@@ -380,7 +374,7 @@ wire [7:0] scale1_reg;
 reg [7:0] scale2_reg;
 
 fadd_stage1 u1(s, t, mantissa1_reg, scale1_reg, sticky1_reg);
-fadd_stage2 u2(s2_reg,t2_reg,mantissa2_reg,scale2_reg,sticky2_reg,d,overflow);
+fadd_stage2 u2(s2_reg,t2_reg,mantissa2_reg,scale2_reg,sticky2_reg,d);
 
 always @(posedge clk) begin
   s2_reg <= s;
