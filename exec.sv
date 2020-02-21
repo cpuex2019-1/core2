@@ -76,9 +76,9 @@ module exec_inner(
 	itof u_itof(itof_s, itof_d);
 	floor u_floor(floor_s, floor_d);
 
-	reg[5:0] opecode_1, opecode_2;
-	reg[31:0] data_1, data_2;
-	reg[4:0] rd_no_1, rd_no_2;
+	reg[5:0] opecode_1, opecode_2, opecode_3;
+	reg[31:0] data_1, data_2, data_3;
+	reg[4:0] rd_no_1, rd_no_2, rd_no_3;
 	reg[7:0] wait_1, wait_2;
 	wire[31:0] rs_0, rt_0;
 	wire[31:0] data_select_1, data_select_2;
@@ -113,10 +113,12 @@ module exec_inner(
 
 	assign rs_0 = do_forward(opecode_1, fmode1, rd_no_1, rs_no) ? 
 					(wait_1[0] ? data_select_1 : data_1) :
-				  do_forward(opecode_2, fmode1, rd_no_2, rs_no) ? data_2 : rs;
+				  do_forward(opecode_2, fmode1, rd_no_2, rs_no) ? data_2 :
+				  do_forward(opecode_3, fmode1, rd_no_3, rs_no) ? data_3 : rs;
 	assign rt_0 = do_forward(opecode_1, fmode2, rd_no_1, rt_no) ?
 					(wait_1[0] ? data_select_1 : data_1) :
-				  do_forward(opecode_2, fmode2, rd_no_2, rt_no) ? data_2 : rt;
+				  do_forward(opecode_2, fmode2, rd_no_2, rt_no) ? data_2 :
+				  do_forward(opecode_3, fmode2, rd_no_3, rt_no) ? data_3 : rt;
 
 	assign mem_addr = rs_0 + {{16{offset[15]}}, offset};
 	assign mem_wdata = rt_0;
@@ -147,6 +149,9 @@ module exec_inner(
 			opecode_2 <= INST_J;
 			data_2 <= 32'h0;
 			rd_no_2 <= 5'h0;
+			opecode_3 <= INST_J;
+			data_3 <= 32'h0;
+			rd_no_3 <= 5'h0;
 			wait_2 <= 8'h0;
 			stalled <= 1'b1;
 		end else begin
@@ -165,6 +170,9 @@ module exec_inner(
 				opecode_2 <= opecode_1;
 				data_2 <= data_1;
 				rd_no_2 <= rd_no_1;
+				opecode_3 <= opecode_2;
+				data_3 <= data_2;
+				rd_no_3 <= rd_no_2;
 				wait_2 <= {wait_1[7], 1'b0, wait_1[6:1]};
 				fdiv_s_2 <= fdiv_s;
 				if(stalled) begin
@@ -200,7 +208,7 @@ module exec_inner(
 						wait_1 <= 8'h2;
 					end else if(opecode == INST_FSUB) begin
 						fadd_s <= rs_0;
-						fadd_t <= {~rt[31], rt[30:0]};
+						fadd_t <= {~rt_0[31], rt_0[30:0]};
 						wait_1 <= 8'h2;
 					end else if(opecode == INST_FMUL) begin
 						fmul_s <= rs_0;
