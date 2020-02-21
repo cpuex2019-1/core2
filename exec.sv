@@ -65,16 +65,16 @@ module exec_inner(
 	input wire rstn
 );
 
-	reg[31:0] fs, ft, fs_div;
+	reg[31:0] fadd_s, fadd_t, fmul_s, fmul_t, fdiv_s, fdiv_s_2, fdiv_t, sqrt_s, ftoi_s, itof_s, floor_s;
 	wire[31:0] fadd_d, fmul_d, finv_d, sqrt_d, ftoi_d, itof_d, floor_d;
 
-	fadd u_fadd(clk, fs, ft, fadd_d);
-	fmul u_fmul(clk, fs, ft, fmul_d);
-	finv u_finv(clk, ft, finv_d);
-	fsqrt u_fsqrt(clk, fs, sqrt_d);
-	ftoi u_ftoi(fs, ftoi_d);
-	itof u_itof(fs, itof_d);
-	floor u_floor(fs, floor_d);
+	fadd u_fadd(clk, fadd_s, fadd_t, fadd_d);
+	fmul u_fmul(clk, fmul_s, fmul_t, fmul_d);
+	finv u_finv(clk, fdiv_t, finv_d);
+	fsqrt u_fsqrt(clk, sqrt_s, sqrt_d);
+	ftoi u_ftoi(ftoi_s, ftoi_d);
+	itof u_itof(itof_s, itof_d);
+	floor u_floor(floor_s, floor_d);
 
 	reg[5:0] opecode_1, opecode_2;
 	reg[31:0] data_1, data_2;
@@ -125,7 +125,7 @@ module exec_inner(
 
 	assign stall = (is_branch_inst(opecode_1) || opecode_1 == INST_JALR) && pc != next_pc;
 	assign stop = ((do_forward(opecode_1, fmode1, rd_no_1, rs_no) || do_forward(opecode_1, fmode2, rd_no_1, rt_no)) && |wait_1[7:1]) ||
-					(opecode_1 == INST_FDIV && use_fpu_inst(opecode) && wait_1[2]) ||
+					(opecode_1 == INST_FDIV && opecode == INST_FMUL && wait_1[2]) ||
 					(opecode == INST_OUTB && opecode_1 == INST_OUTB && wait_1[7] && ~uart_wdone) ||
 					(opecode[3:0] == 4'b1111 && opecode_1[3:0] == 4'b1111 && wait_1[7] && ~uart_rdone);
 
@@ -140,8 +140,6 @@ module exec_inner(
 			uart_wenable <= 1'b0;
 			uart_wd <= 32'h0;
 			uart_renable <= 1'b0;
-			fs <= 32'h0;
-			ft <= 32'h0;
 			opecode_1 <= INST_J;
 			data_1 <= 32'h0;
 			rd_no_1 <= 5'h0;
@@ -178,9 +176,7 @@ module exec_inner(
 				end else begin
 					next_pc <= pc + 32'h4;
 					pcenable <= is_branch_inst(opecode) || opecode == INST_JALR;
-					fs <= rs_0;
-					ft <= rt_0;
-					fs_div <= fs;
+					fdiv_s_2 <= fdiv_s;
 					if(opecode[3:0] == 4'b0000) begin
 					end else if(opecode[3:0] == 4'b0001) begin
 						wait_1 <= 8'h1;
@@ -199,25 +195,36 @@ module exec_inner(
 					end else if(opecode == INST_ORI) begin
 						data_1 <= rs_0 | {16'h0, offset};
 					end else if(opecode == INST_FADD) begin
+						fadd_s <= rs_0;
+						fadd_t <= rt_0;
 						wait_1 <= 8'h2;
 					end else if(opecode == INST_FSUB) begin
-						ft <= {~rt[31], rt[30:0]};
+						fadd_s <= rs_0;
+						fadd_t <= {~rt[31], rt[30:0]};
 						wait_1 <= 8'h2;
 					end else if(opecode == INST_FMUL) begin
+						fmul_s <= rs_0;
+						fmul_t <= rt_0;
 						wait_1 <= 8'h2;
 					end else if(opecode == INST_FDIV) begin
+						fdiv_s <= rs_0;
+						fdiv_t <= rt_0;
 						wait_1 <= 8'h20;
 					end else if(opecode == INST_FNEG) begin
 						data_1 <= {~rs_0[31], rs_0[30:0]};
 					end else if(opecode == INST_FABS) begin
 						data_1 <= {1'b0, rs_0[30:0]};
 					end else if(opecode == INST_SQRT) begin
+						sqrt_s <= rs_0;
 						wait_1 <= 8'h8;
 					end else if(opecode == INST_FLOOR) begin
+						floor_s <= rs_0;
 						wait_1 <= 8'h1;
 					end else if(opecode == INST_FTOI) begin
+						ftoi_s <= rs_0;
 						wait_1 <= 8'h1;
 					end else if(opecode == INST_ITOF) begin
+						itof_s <= rs_0;
 						wait_1 <= 8'h1;
 					end else if(opecode == INST_MOVF) begin
 						data_1 <= rs_0;
@@ -275,8 +282,8 @@ module exec_inner(
 				data_2 <= data_select_2;
 			end
 			if(opecode_1 == INST_FDIV && wait_1[2]) begin
-				fs <= fs_div;
-				ft <= finv_d;
+				fmul_s <= fdiv_s;
+				fmul_t <= finv_d;
 				if(enable) begin
 					opecode_2 <= INST_FMUL;
 				end else begin
@@ -284,8 +291,8 @@ module exec_inner(
 				end
 			end
 			if(opecode_2 == INST_FDIV && wait_2[2]) begin
-				fs <= fs_div;
-				ft <= finv_d;
+				fmul_s <= fdiv_s_2;
+				fmul_t <= finv_d;
 				opecode_2 <= INST_FMUL;
 			end
 			if(uart_rdone) begin
