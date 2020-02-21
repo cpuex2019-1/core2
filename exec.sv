@@ -166,6 +166,7 @@ module exec_inner(
 				data_2 <= data_1;
 				rd_no_2 <= rd_no_1;
 				wait_2 <= {wait_1[7], 1'b0, wait_1[6:1]};
+				fdiv_s_2 <= fdiv_s;
 				if(stalled) begin
 					nop();
 				end else if(stall) begin
@@ -176,7 +177,6 @@ module exec_inner(
 				end else begin
 					next_pc <= pc + 32'h4;
 					pcenable <= is_branch_inst(opecode) || opecode == INST_JALR;
-					fdiv_s_2 <= fdiv_s;
 					if(opecode[3:0] == 4'b0000) begin
 					end else if(opecode[3:0] == 4'b0001) begin
 						wait_1 <= 8'h1;
