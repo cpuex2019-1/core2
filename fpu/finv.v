@@ -375,10 +375,7 @@ assign mantissa_d =
     mantissa_s == 8'd0 ? mantissa_s : x2[30:8] + {22'b0, flag};
 
 // 出力する
-wire overflow, underflow;
 assign d = {sign_d, exponent_d, mantissa_d}; 
-assign overflow = 1'b0;
-assign underflow = 1'b0;
 
 endmodule
 
@@ -387,44 +384,39 @@ endmodule
 module finv(
     input wire clk,
     input wire [31:0] s,
-    output wire [31:0] d,
-    output wire overflow,
-    output wire underflow
+    output wire [31:0] d
 );
 
-wire [31:0] wire_s1, wire_s2, wire_s3, wire_s4;
-wire [63:0] wire_target1, wire_target2, wire_target3, wire_target4;
-wire [63:0] wire_a1, wire_a2, wire_a3, wire_a4;
-wire [63:0] wire_b1, wire_b2, wire_b3, wire_b4;
-wire [63:0] wire_c1, wire_c2, wire_c3, wire_c4;
-wire [63:0] wire_x1, wire_x21, wire_x22, wire_x3, wire_x4;
-reg [31:0] reg_s1, reg_s2, reg_s3, reg_s4;
-reg [63:0] reg_target1, reg_target2, reg_target3, reg_target4;
-reg [63:0] reg_a1, reg_a2, reg_a3, reg_a4;
-reg [63:0] reg_b1, reg_b2, reg_b3, reg_b4;
-reg [63:0] reg_c1, reg_c2, reg_c3, reg_c4;
-reg [63:0] reg_x1, reg_x21, reg_x22, reg_x3, reg_x4;
+wire [63:0] target1;
+wire [63:0] wire_a1, wire_a3;
+wire [63:0] wire_b1, wire_b3;
+wire [63:0] wire_x1, wire_x22;
+reg [31:0] s2, s3, s4;
+reg [63:0] target2, target3, target4;
+reg [63:0] a2, a4;
+reg [63:0] b2, b4;
+reg [63:0] x21, x3, x4;
 
 /*
 module finv_stage1(
   input wire [31:0] s,
   output wire [63:0] target,
-  output reg [63:0] a1,
-  output reg [63:0] b1,
-  output reg [63:0] x0
+  output wire [63:0] a1,
+  output wire [63:0] b1,
+  output wire [63:0] x0
 );
 module finv_stage2(
   input wire [63:0] x0,
   input wire [63:0] target,
   input wire [63:0] a1,
   input wire [63:0] b1,
-  output reg [63:0] x1
+  output wire [63:0] x1
 );
 module finv_stage3(
   input wire [63:0] x1,
   input wire [63:0] target,
-  output reg [63:0] a2,
-  output reg [63:0] b2
+  output wire [63:0] a2,
+  output wire [63:0] b2
 );
 module finv_stage4(
   input wire [31:0] s,
@@ -436,46 +428,25 @@ module finv_stage4(
 );
 */
 
-finv_stage1 u1(wire_s1,wire_target1,wire_a1,wire_b1,wire_x1);
-finv_stage2 u2(wire_x21,wire_target2,wire_a2,wire_b2,wire_x22);
-finv_stage3 u3(wire_x3,wire_target3,wire_a3,wire_b3);
-finv_stage4 u4(wire_s4,wire_x4,wire_target4,wire_a4,wire_b4,d);
-
-assign wire_s1 = s;
-assign wire_s2 = reg_s2;
-assign wire_s3 = reg_s3;
-assign wire_s4 = reg_s4;
-assign wire_target2 = reg_target2;
-assign wire_target3 = reg_target3;
-assign wire_target4 = reg_target4;
-assign wire_a2 = reg_a2;
-assign wire_a4 = reg_a4;
-assign wire_b2 = reg_b2;
-assign wire_b4 = reg_b4;
-assign wire_x21 = reg_x21;
-assign wire_x3 = reg_x3;
-assign wire_x4 = reg_x4;
+finv_stage1 u1(s,target1,wire_a1,wire_b1,wire_x1);
+finv_stage2 u2(x21,target2,a2,b2,wire_x22);
+finv_stage3 u3(x3,target3,wire_a3,wire_b3);
+finv_stage4 u4(s4,x4,target4,a4,b4,d);
 
 always @(posedge clk) begin
-  reg_s4 <= wire_s3;
-end
-always @(posedge clk) begin
-  reg_s3 <= wire_s2;
-end
-always @(posedge clk) begin
-  reg_s2 <= wire_s1;
-end
-always @(posedge clk) begin
-  reg_a2 <= wire_a1;
-  reg_b2 <= wire_b1;
-  reg_a4 <= wire_a3;
-  reg_b4 <= wire_b3;
-  reg_x21 <= wire_x1;
-  reg_x3 <= wire_x22;
-  reg_x4 <= wire_x22;
-  reg_target2 <= wire_target1;
-  reg_target3 <= wire_target1;
-  reg_target4 <= wire_target1;
+  s2 <= s;
+  s3 <= s2;
+  s4 <= s3;
+  a2 <= wire_a1;
+  b2 <= wire_b1;
+  a4 <= wire_a3;
+  b4 <= wire_b3;
+  x21 <= wire_x1;
+  x3 <= wire_x22;
+  x4 <= x3;
+  target2 <= target1;
+  target3 <= target2;
+  target4 <= target3;
 end
 
 endmodule

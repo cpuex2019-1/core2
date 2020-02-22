@@ -20,15 +20,14 @@ module fmul_stage2(
   input wire [31:0] s,
   input wire [31:0] t,
   input wire [47:0] one_mantissa_d_48bit,
-  output wire [31:0] d,
-  output wire overflow,
-  output wire underflow
+  output wire [31:0] d
 );
 
 // 符号1bit、指数8bit、仮数23bitを読み出す
 wire [0:0] sign_s, sign_t, sign_d;
 wire [7:0] exponent_s, exponent_t, exponent_d;
 wire [22:0] mantissa_s, mantissa_t, mantissa_d;
+wire overflow, underflow;
 
 assign sign_s = s[31:31];
 assign sign_t = t[31:31];
@@ -190,22 +189,19 @@ module fmul(
   input wire clk,
   input wire [31:0] s,
   input wire [31:0] t,
-  output wire [31:0] d,
-  output wire overflow,
-  output wire underflow
+  output wire [31:0] d
 );
 
-reg [31:0] s1_reg, t1_reg, s2_reg, t2_reg;
-reg [47:0] mantissa1_reg, mantissa2_reg;
+reg [31:0] s2_reg, t2_reg;
+wire [47:0] mantissa1_reg;
+reg [47:0] mantissa2_reg;
 
 fmul_stage1 u1(s, t, mantissa1_reg);
-fmul_stage2 u2(s2_reg,t2_reg,mantissa2_reg,d,overflow,underflow);
+fmul_stage2 u2(s2_reg,t2_reg,mantissa2_reg,d);
 
 always @(posedge clk) begin
-  s1_reg <= s;
-  t1_reg <= t;
-  s2_reg <= s1_reg;
-  t2_reg <= t1_reg;
+  s2_reg <= s;
+  t2_reg <= t;
   mantissa2_reg <= mantissa1_reg;
 end
 
