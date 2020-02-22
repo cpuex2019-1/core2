@@ -334,14 +334,26 @@ assign d2 = (x1 * x1) >> 8'd31; // d = x^2/2
 
 endmodule
 
-
 // NOTE: stage4
 module fsqrt_stage4(
-    input wire [31:0] s,
-    input wire [63:0] target,
     input wire [63:0] b2,
     input wire [63:0] c2,
     input wire [63:0] d2,
+    output wire [63:0] x2
+);
+
+wire [63:0] e2;
+
+assign e2 = (c2 * d2) >> 8'd32; // e = ax^3/2
+assign x2 = b2 - e2;    // x' = (3x-ax^3)/2
+
+endmodule
+
+// NOTE: stage5
+module fsqrt_stage5(
+    input wire [31:0] s,
+    input wire [63:0] target,
+    input wire [63:0] x2,
     output wire [31:0] d
 );
 
@@ -354,9 +366,7 @@ assign sign_s = s[31:31];
 assign exponent_s = s[30:23];
 assign mantissa_s = s[22:0];
 
-wire [63:0] e2, x2, y2;
-assign e2 = (c2 * d2) >> 8'd32; // e = ax^3/2
-assign x2 = b2 - e2;   // x' = (3x-ax^3)/2
+wire [63:0] y2;
 assign y2 = (x2 * target) >> 8'd31;
 
 // 符号を決める
@@ -400,13 +410,13 @@ wire [63:0] target1;
 wire [63:0] wire_b1, wire_b3;
 wire [63:0] wire_c1, wire_c3;
 wire [63:0] wire_d1, wire_d3;
-wire [63:0] wire_x2;
-reg [31:0] s2, s3, s4;
-reg [63:0] target2, target3, target4;
+wire [63:0] wire_x2, x4;
+reg [31:0] s2, s3, s4, s5;
+reg [63:0] target2, target3, target4, target5;
 reg [63:0] b2, b4;
 reg [63:0] c2, c4;
 reg [63:0] d2, d4;
-reg [63:0] x3;
+reg [63:0] x3, x5;
 
 /*
 NOTE: Signature
@@ -443,15 +453,18 @@ module fsqrt_stage4(
 fsqrt_stage1 u1(s,target1,wire_b1,wire_c1,wire_d1);
 fsqrt_stage2 u2(target2,b2,c2,d2,wire_x2);
 fsqrt_stage3 u3(target3,x3,wire_b3,wire_c3,wire_d3);
-fsqrt_stage4 u4(s4,target4,b4,c4,d4,d);
+fsqrt_stage4 u4(b4,c4,d4,x4);
+fsqrt_stage5 u5(s5,target5,x5,d);
 
 always @(posedge clk) begin
   s2 <= s;
   s3 <= s2;
   s4 <= s3;
+  s5 <= s4;
   target2 <= target1;
   target3 <= target2;
   target4 <= target3;
+  target5 <= target4;
   b2 <= wire_b1;
   c2 <= wire_c1;
   d2 <= wire_d1;
@@ -459,6 +472,7 @@ always @(posedge clk) begin
   b4 <= wire_b3;
   c4 <= wire_c3;
   d4 <= wire_d3;
+  x5 <= x4;
 end
 
 endmodule

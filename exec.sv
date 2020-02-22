@@ -224,7 +224,7 @@ module exec_inner(
 						data_1 <= {1'b0, rs_0[30:0]};
 					end else if(opecode == INST_SQRT) begin
 						sqrt_s <= rs_0;
-						wait_1 <= 8'h8;
+						wait_1 <= 8'h10;
 					end else if(opecode == INST_FLOOR) begin
 						floor_s <= rs_0;
 						wait_1 <= 8'h1;
