@@ -10,7 +10,7 @@
     parameter INST_MUL    = 6'b00_0100;
     parameter INST_XOR    = 6'b00_0101;
     parameter INST_ADDI   = 6'b00_1000;
-    parameter INST_SLLI   = 6'b00_1001;
+    parameter INST_SI     = 6'b00_1001;
     parameter INST_ORI    = 6'b00_1010;
     parameter INST_FADD   = 6'b11_0010;
     parameter INST_FSUB   = 6'b11_0011;

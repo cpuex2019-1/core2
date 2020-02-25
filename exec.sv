@@ -82,6 +82,7 @@ module exec_inner(
 	reg[7:0] wait_1, wait_2;
 	wire[31:0] rs_0, rt_0;
 	wire[31:0] data_select_1, data_select_2;
+	wire[63:0] tmp_srai;
 	wire stall;
 	reg stalled;
 
@@ -119,6 +120,8 @@ module exec_inner(
 					(wait_1[0] ? data_select_1 : data_1) :
 				  do_forward(opecode_2, fmode2, rd_no_2, rt_no) ? data_2 :
 				  do_forward(opecode_3, fmode2, rd_no_3, rt_no) ? data_3 : rt;
+
+	assign tmp_srai = {{32{rs_0[31]}}, rs_0} >> offset[4:0];
 
 	assign mem_addr = rs_0 + {{16{offset[15]}}, offset};
 	assign mem_wdata = rt_0;
@@ -198,8 +201,9 @@ module exec_inner(
 						data_1 <= rs_0 ^ rt_0;
 					end else if(opecode == INST_ADDI) begin
 						data_1 <= rs_0 + {{16{offset[15]}}, offset};
-					end else if(opecode == INST_SLLI) begin
-						data_1 <= rs_0 << offset[4:0];
+					end else if(opecode == INST_SI) begin
+						data_1 <= ~offset[5] ? rs_0 << offset[4:0] :
+								  ~offset[6] ? rs_0 >> offset[4:0] : tmp_srai[31:0];
 					end else if(opecode == INST_ORI) begin
 						data_1 <= rs_0 | {16'h0, offset};
 					end else if(opecode == INST_FADD) begin
