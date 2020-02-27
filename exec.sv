@@ -72,13 +72,13 @@ module exec_inner(
 	fmul u_fmul(clk, fmul_s, fmul_t, fmul_d);
 	finv u_finv(clk, fdiv_t, finv_d);
 	fsqrt u_fsqrt(clk, sqrt_s, sqrt_d);
-	ftoi u_ftoi(ftoi_s, ftoi_d);
+	ftoi u_ftoi(clk, ftoi_s, ftoi_d);
 	itof u_itof(clk, itof_s, itof_d);
 	floor u_floor(clk,floor_s, floor_d);
 
-	reg[5:0] opecode_1, opecode_2, opecode_3, opecode_4;
-	reg[31:0] data_1, data_2, data_3, data_4;
-	reg[4:0] rd_no_1, rd_no_2, rd_no_3, rd_no_4;
+	reg[5:0] opecode_1, opecode_2, opecode_3, opecode_4, opecode_5;
+	reg[31:0] data_1, data_2, data_3, data_4, data_5;
+	reg[4:0] rd_no_1, rd_no_2, rd_no_3, rd_no_4, rd_no_5;
 	reg[8:0] wait_1, wait_2, wait_3;
 	wire[31:0] rs_0, rt_0;
 	wire[31:0] data_select_1, data_select_2, data_select_3;
@@ -126,13 +126,15 @@ module exec_inner(
 				  do_forward(opecode_2, fmode1, rd_no_2, rs_no) ?
 					(wait_2[0] ? data_select_2 : data_2) :
 				  do_forward(opecode_3, fmode1, rd_no_3, rs_no) ? data_3 :
-				  do_forward(opecode_4, fmode1, rd_no_4, rs_no) ? data_4 : rs;
+				  do_forward(opecode_4, fmode1, rd_no_4, rs_no) ? data_4 :
+				  do_forward(opecode_5, fmode1, rd_no_5, rs_no) ? data_5 : rs;
 	assign rt_0 = do_forward(opecode_1, fmode2, rd_no_1, rt_no) ?
 					(wait_1[0] ? data_select_1 : data_1) :
 				  do_forward(opecode_2, fmode2, rd_no_2, rt_no) ?
 					(wait_2[0] ? data_select_2 : data_2) :
 				  do_forward(opecode_3, fmode2, rd_no_3, rt_no) ? data_3 :
-				  do_forward(opecode_4, fmode2, rd_no_4, rt_no) ? data_4 : rt;
+				  do_forward(opecode_4, fmode2, rd_no_4, rt_no) ? data_4 :
+				  do_forward(opecode_5, fmode2, rd_no_5, rt_no) ? data_5 : rt;
 
 	assign tmp_srai = {{32{rs_0[31]}}, rs_0} >> offset[4:0];
 
@@ -177,6 +179,9 @@ module exec_inner(
 			opecode_4 <= INST_J;
 			data_4 <= 32'h0;
 			rd_no_4 <= 5'h0;
+			opecode_5 <= INST_J;
+			data_5 <= 32'h0;
+			rd_no_5 <= 5'h0;
 			stalled <= 1'b1;
 		end else begin
 			uart_renable <= 1'b0;
@@ -203,6 +208,9 @@ module exec_inner(
 				opecode_4 <= opecode_3;
 				data_4 <= data_3;
 				rd_no_4 <= rd_no_3;
+				opecode_5 <= opecode_4;
+				data_5 <= data_4;
+				rd_no_5 <= rd_no_4;
 				fdiv_s_2 <= fdiv_s;
 				fdiv_s_3 <= fdiv_s_2;
 				if(stalled) begin
@@ -261,7 +269,7 @@ module exec_inner(
 						wait_1 <= 9'h2;
 					end else if(opecode == INST_FTOI) begin
 						ftoi_s <= rs_0;
-						wait_1 <= 9'h1;
+						wait_1 <= 9'h2;
 					end else if(opecode == INST_ITOF) begin
 						itof_s <= rs_0;
 						wait_1 <= 9'h2;
@@ -298,12 +306,6 @@ module exec_inner(
 					end
 				end
 			end
-			// if(enable && (~|wait_1[8:1] || (wait_1[8] && (uart_rdone || uart_wdone)))) begin
-			// 	done <= 1'b1;
-			// 	wenable <= is_write_inst(opecode_1);
-			// 	wfmode <= opecode_1[5];
-			// 	wreg <= rd_no_1;
-			// end 
 			if(enable && (~|wait_2[8:1] || (wait_2[8] && (uart_rdone || uart_wdone)))) begin
 				done <= 1'b1;
 				wenable <= is_write_inst(opecode_2);

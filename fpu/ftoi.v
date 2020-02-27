@@ -1,26 +1,27 @@
 module ftoi(
+  input wire clk,
   input wire [31:0] s,
   output wire [31:0] d
 );
 
-wire sign_s;
-wire [7:0] exponent_s, exponent_s_minus127;
+reg [31:0] s2;
+reg [7:0] exponent_s_minus127;
+wire [7:0] exponent_s_minus127_;
 wire [22:0] mantissa_s;
 wire [23:0] one_mantissa_s;
 
-assign sign_s = s[31:31];
-assign exponent_s = s[30:23];
-assign exponent_s_minus127 = (exponent_s > 8'd127 ? exponent_s - 8'd127 : 8'd0);
+assign exponent_s_minus127_ = (s[30:23] > 8'd127 ? s[30:23] - 8'd127 : 8'd0);
 assign mantissa_s = s[22:0];
 
 // NOTE: mantissa_ex -> 32bit拡張するだけ
 // NOTE: mantissa_shift -> 指数の数だけshiftする
 // NOTE: mantissa_round -> 丸めを加える
 // NOTE: 符号を加える(必要なら補数をとる)
-wire [54:0] mantissa_ex, mantissa_shift;
-wire [31:0] mantissa_round, tmp4;
+reg [54:0] mantissa_shift;
+wire [54:0] mantissa_ex, mantissa_shift_;
+wire [31:0] mantissa_round;
 assign mantissa_ex = {32'b1, mantissa_s};
-assign mantissa_shift = (mantissa_ex << (exponent_s - 8'd126));
+assign mantissa_shift_ = (mantissa_ex << (s[30:23] - 8'd126));
 
 // NOTE: 適切に丸める
 wire ulp, guard, round, sticky, flag, carry;
@@ -44,11 +45,17 @@ assign mantissa_round = {1'b0, mantissa_shift[54:24]} + {31'b0, flag};
 
 wire d_is_inf, d_is_zero;
 assign d_is_inf = (exponent_s_minus127 >= 8'd31);
-assign d_is_zero = (exponent_s < 8'd126);
+assign d_is_zero = (s2[30:23] < 8'd126);
 
 assign d =
     d_is_inf ? {1'b1, 31'b0} :
     d_is_zero ? 32'd0 :
-    sign_s ? ~mantissa_round + 32'b1 : mantissa_round;
+    s2[31] ? ~mantissa_round + 32'b1 : mantissa_round;
+
+always @(posedge clk) begin
+  mantissa_shift <= mantissa_shift_;
+  exponent_s_minus127 <= exponent_s_minus127_;
+  s2 <= s;
+end
 
 endmodule
