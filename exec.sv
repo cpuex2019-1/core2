@@ -121,7 +121,7 @@ module exec_inner(
 
 	assign tmp_srai = {{32{rs_0[31]}}, rs_0} >> offset[4:0];
 
-	assign mem_addr = rs_0 + {{16{offset[15]}}, offset};
+	assign mem_addr = opecode[4] && opecode[0] ? rs_0 + rt_0 : rs_0 + {{16{offset[15]}}, offset};
 	assign mem_wdata = rt_0;
 	assign mem_enable = enable && ~stall && ~stalled && ~stop;
 	assign mem_wea = opecode[3:0] == 4'h0 ? 4'hf : 4'h0;

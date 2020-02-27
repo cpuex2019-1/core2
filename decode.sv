@@ -31,8 +31,8 @@ module decode_inner(
 
 	assign reg1 = command[20:16];
 	assign reg2 = command[29:26] == 4'b0000 || is_branch_inst(command[31:26]) ? command[25:21] : command[15:11];
-	assign fmode1 = command[30] && command[29:26] != 4'b0000;
-	assign fmode2 = command[30];
+	assign fmode1 = command[30] && command[29:27] != 3'b000;
+	assign fmode2 = command[30] && command[29:26] == 4'b0001;
 
 	always @(posedge clk) begin
 		if(~rstn) begin
