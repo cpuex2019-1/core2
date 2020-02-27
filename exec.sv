@@ -343,7 +343,7 @@ module exec_inner(
 				end
 			end
 			if(opecode_2 == INST_FDIV && wait_2[3]) begin
-				fmul_s <= fdiv_s;
+				fmul_s <= fdiv_s_2;
 				fmul_t <= finv_d;
 				if(enable) begin
 					opecode_3 <= INST_FMUL;
