@@ -22,13 +22,10 @@ assign one_mantissa_s = {1'b1, mantissa_s};
 
 // 仮数を決める
 wire [7:0] upper8;
-wire [14:0] lower15;
 
 assign target = {32'b0, one_mantissa_s, 8'b0};
 
 // Newton法の初期値を決める
-// 初期値の下位bitはとりあえず0で
-assign lower15 = 15'b0;
 // NOTE: 初期値の上位8桁を決める
 assign upper8 =
 mantissa_s[22:15] == 8'b00000000 ? 8'b11111111 :
@@ -289,7 +286,7 @@ mantissa_s[22:15] == 8'b11111110 ? 8'b00000001 : 00000000;
 
 // Newton法を回す
 // wire [63:0] x0;
-assign x0 = {33'b1, upper8, lower15, 8'b0};
+assign x0 = {33'b1, upper8, 23'b0};
 assign a1 = x0 << 8'd1;
 assign b1 = (target * x0) >> 8'd31;
 
@@ -299,7 +296,6 @@ endmodule
 // NOTE: stage2
 module finv_stage2(
   input wire [63:0] x0,
-  input wire [63:0] target,
   input wire [63:0] a1,
   input wire [63:0] b1,
   output wire [63:0] x1
@@ -329,11 +325,21 @@ endmodule
 
 // NOTE: stage4
 module finv_stage4(
-  input wire [31:0] s,
   input wire [63:0] x1,
-  input wire [63:0] target,
   input wire [63:0] a2,
   input wire [63:0] b2,
+  output wire [63:0] x2
+);
+
+wire [63:0] c2;
+assign c2 = (b2 * x1) >> 8'd32;
+assign x2 = a2 - c2;
+
+endmodule
+
+module finv_stage5(
+  input wire [31:0] s,
+  input wire [63:0] x2,
   output wire [31:0] d
 );
 
@@ -345,10 +351,6 @@ wire [22:0] mantissa_s, mantissa_d;
 assign sign_s = s[31:31];
 assign exponent_s = s[30:23];
 assign mantissa_s = s[22:0];
-
-wire [63:0] c2, x2;
-assign c2 = (b2 * x1) >> 8'd32;
-assign x2 = a2 - c2;
 
 // 符号を決める
 assign sign_d = sign_s;
@@ -390,53 +392,24 @@ module finv(
 wire [63:0] target1;
 wire [63:0] wire_a1, wire_a3;
 wire [63:0] wire_b1, wire_b3;
-wire [63:0] wire_x1, wire_x22;
-reg [31:0] s2, s3, s4;
-reg [63:0] target2, target3, target4;
+wire [63:0] wire_x1, wire_x22, x5_;
+reg [31:0] s2, s3, s4, s5;
+reg [63:0] target2, target3;
 reg [63:0] a2, a4;
 reg [63:0] b2, b4;
-reg [63:0] x21, x3, x4;
-
-/*
-module finv_stage1(
-  input wire [31:0] s,
-  output wire [63:0] target,
-  output wire [63:0] a1,
-  output wire [63:0] b1,
-  output wire [63:0] x0
-);
-module finv_stage2(
-  input wire [63:0] x0,
-  input wire [63:0] target,
-  input wire [63:0] a1,
-  input wire [63:0] b1,
-  output wire [63:0] x1
-);
-module finv_stage3(
-  input wire [63:0] x1,
-  input wire [63:0] target,
-  output wire [63:0] a2,
-  output wire [63:0] b2
-);
-module finv_stage4(
-  input wire [31:0] s,
-  input wire [63:0] x1,
-  input wire [63:0] target,
-  input wire [63:0] a2,
-  input wire [63:0] b2,
-  output wire [31:0] d
-);
-*/
+reg [63:0] x21, x3, x4, x5;
 
 finv_stage1 u1(s,target1,wire_a1,wire_b1,wire_x1);
-finv_stage2 u2(x21,target2,a2,b2,wire_x22);
+finv_stage2 u2(x21,a2,b2,wire_x22);
 finv_stage3 u3(x3,target3,wire_a3,wire_b3);
-finv_stage4 u4(s4,x4,target4,a4,b4,d);
+finv_stage4 u4(x4,a4,b4,x5_);
+finv_stage5 u5(s5,x5,d);
 
 always @(posedge clk) begin
   s2 <= s;
   s3 <= s2;
   s4 <= s3;
+  s5 <= s4;
   a2 <= wire_a1;
   b2 <= wire_b1;
   a4 <= wire_a3;
@@ -446,7 +419,7 @@ always @(posedge clk) begin
   x4 <= x3;
   target2 <= target1;
   target3 <= target2;
-  target4 <= target3;
+  x5 <= x5_;
 end
 
 endmodule

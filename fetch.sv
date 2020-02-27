@@ -42,7 +42,7 @@ module fetch_inner(
 			pc <= 32'hfffffffc;
 			pc_history <= 32'hffffffff;
 			set <= 1'b0;
-			branch_prediction <= {1024{1'b0}};
+			branch_prediction <= {1024{1'b1}};
 			prediction_miss <= {1024{1'b1}};
 			is_branch0 <= 1'b0;
 			is_branch1 <= 1'b0;
