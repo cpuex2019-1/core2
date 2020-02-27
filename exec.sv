@@ -123,12 +123,14 @@ module exec_inner(
 
 	assign rs_0 = do_forward(opecode_1, fmode1, rd_no_1, rs_no) ? 
 					(wait_1[0] ? data_select_1 : data_1) :
-				  do_forward(opecode_2, fmode1, rd_no_2, rs_no) ? data_2 :
+				  do_forward(opecode_2, fmode1, rd_no_2, rs_no) ?
+					(wait_2[0] ? data_select_2 : data_2) :
 				  do_forward(opecode_3, fmode1, rd_no_3, rs_no) ? data_3 :
 				  do_forward(opecode_4, fmode1, rd_no_4, rs_no) ? data_4 : rs;
 	assign rt_0 = do_forward(opecode_1, fmode2, rd_no_1, rt_no) ?
 					(wait_1[0] ? data_select_1 : data_1) :
-				  do_forward(opecode_2, fmode2, rd_no_2, rt_no) ? data_2 :
+				  do_forward(opecode_2, fmode2, rd_no_2, rt_no) ?
+					(wait_2[0] ? data_select_2 : data_2) :
 				  do_forward(opecode_3, fmode2, rd_no_3, rt_no) ? data_3 :
 				  do_forward(opecode_4, fmode2, rd_no_4, rt_no) ? data_4 : rt;
 
@@ -136,8 +138,8 @@ module exec_inner(
 
 	assign mem_addr = opecode[4] && opecode[0] ? rs_0 + rt_0 : rs_0 + {{16{offset[15]}}, offset};
 	assign mem_wdata = rt_0;
-	assign mem_enable = enable && ~stall && ~stalled && ~stop;
-	assign mem_wea = opecode[3:0] == 4'h0 ? 4'hf : 4'h0;
+	assign mem_enable = 1'b1;
+	assign mem_wea = opecode[3:0] == 4'h0 && enable && ~stall && ~stalled && ~stop ? 4'hf : 4'h0;
 
 	assign stall = (is_branch_inst(opecode_1) || opecode_1 == INST_JALR) && pc != next_pc;
 	assign stop = ((do_forward(opecode_1, fmode1, rd_no_1, rs_no) || do_forward(opecode_1, fmode2, rd_no_1, rt_no)) && |wait_1[8:1]) ||
