@@ -26,9 +26,6 @@ assign target =
 
 // Newton法の初期値を設定する
 wire [6:0] upper7;
-wire [15:0] lower16;
-// 初期値の下位bitはとりあえず0で
-assign lower16 = 16'b0;
 // NOTE: 初期値の上位7桁を決める
 assign upper7 =
 exponent_s[0:0] == 1'b1 ? (
@@ -291,8 +288,8 @@ mantissa_s[22:16] == 7'b1111110 ? 7'b1000000 : 7'b1000000
 
 // NOTE: Newton法を回す x_{n+1} = 1/2 (3 x_n + a / x_n)
 wire [63:0] x0, a1;
-assign x0 = {33'b0, upper7, lower16, 8'b0};
-assign a1 = x0 >> 8'd1; // a = x/2
+assign x0 = {33'b0, upper7, 24'b0};
+assign a1 = {34'b0, upper7, 23'b0}; // a = x/2
 assign b1 = a1 + x0; // b = 3x/2
 assign c1 = (target * x0) >> 8'd31; // c = ax
 assign d1 = (x0 * x0) >> 8'd31; // d = x^2/2
@@ -351,9 +348,18 @@ endmodule
 
 // NOTE: stage5
 module fsqrt_stage5(
-    input wire [31:0] s,
     input wire [63:0] target,
     input wire [63:0] x2,
+    output wire [63:0] y2
+);
+
+assign y2 = (x2 * target) >> 8'd31;
+
+endmodule
+
+module fsqrt_stage6(
+    input wire [31:0] s,
+    input wire [63:0] y2,
     output wire [31:0] d
 );
 
@@ -365,9 +371,6 @@ wire [22:0] mantissa_s, mantissa_d;
 assign sign_s = s[31:31];
 assign exponent_s = s[30:23];
 assign mantissa_s = s[22:0];
-
-wire [63:0] y2;
-assign y2 = (x2 * target) >> 8'd31;
 
 // 符号を決める
 assign sign_d = 1'b0;
@@ -410,57 +413,27 @@ wire [63:0] target1;
 wire [63:0] wire_b1, wire_b3;
 wire [63:0] wire_c1, wire_c3;
 wire [63:0] wire_d1, wire_d3;
-wire [63:0] wire_x2, x4;
-reg [31:0] s2, s3, s4, s5;
+wire [63:0] wire_x2, x4, y5;
+reg [31:0] s2, s3, s4, s5, s6;
 reg [63:0] target2, target3, target4, target5;
 reg [63:0] b2, b4;
 reg [63:0] c2, c4;
 reg [63:0] d2, d4;
-reg [63:0] x3, x5;
+reg [63:0] x3, x5, y6;
 
-/*
-NOTE: Signature
-module fsqrt_stage1(
-    input wire [31:0] s,
-    output wire [63:0] target,
-    output wire [63:0] b1,
-    output wire [63:0] c1,
-    output wire [63:0] d1
-);
-module fsqrt_stage2(
-    input wire [63:0] target,
-    input wire [63:0] b1,
-    input wire [63:0] c1,
-    input wire [63:0] d1,
-    output wire [63:0] x1
-);
-module fsqrt_stage3(
-    input wire [63:0] target,
-    input wire [63:0] x1,
-    output wire [63:0] b2,
-    output wire [63:0] c2,
-    output wire [63:0] d2
-);
-module fsqrt_stage4(
-    input wire [31:0] s,
-    input wire [63:0] target,
-    input wire [63:0] b2,
-    input wire [63:0] c2,
-    input wire [63:0] d2,
-    output wire [31:0] d
-);
-*/
 fsqrt_stage1 u1(s,target1,wire_b1,wire_c1,wire_d1);
 fsqrt_stage2 u2(target2,b2,c2,d2,wire_x2);
 fsqrt_stage3 u3(target3,x3,wire_b3,wire_c3,wire_d3);
 fsqrt_stage4 u4(b4,c4,d4,x4);
-fsqrt_stage5 u5(s5,target5,x5,d);
+fsqrt_stage5 u5(target5,x5,y5);
+fsqrt_stage6 u6(s6,y6,d);
 
 always @(posedge clk) begin
   s2 <= s;
   s3 <= s2;
   s4 <= s3;
   s5 <= s4;
+  s6 <= s5;
   target2 <= target1;
   target3 <= target2;
   target4 <= target3;
@@ -473,6 +446,7 @@ always @(posedge clk) begin
   c4 <= wire_c3;
   d4 <= wire_d3;
   x5 <= x4;
+  y6 <= y5;
 end
 
 endmodule
