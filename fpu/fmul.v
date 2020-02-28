@@ -20,13 +20,30 @@ module fmul_stage2(
   input wire [31:0] s,
   input wire [31:0] t,
   input wire [47:0] one_mantissa_d_48bit,
-  output wire [47:0] one_mantissa_d_scaled,
-  output wire shift_left,
-  output wire carry
+  output wire [31:0] d
 );
+
+// 符号1bit、指数8bit、仮数23bitを読み出す
+wire [0:0] sign_s, sign_t, sign_d;
+wire [7:0] exponent_s, exponent_t, exponent_d;
+wire [22:0] mantissa_s, mantissa_t, mantissa_d;
+wire overflow, underflow;
+
+assign sign_s = s[31:31];
+assign sign_t = t[31:31];
+assign exponent_s = s[30:23];
+assign exponent_t = t[30:23];
+assign mantissa_s = s[22:0];
+assign mantissa_t = t[22:0];
+
+// carryがあるか調べる(非正規化数になったら適切にシフトする)
+wire carry;
+assign carry = one_mantissa_d_48bit[47:47];
 
 // NOTE: 指数より左シフトが大きければシフトしない
 wire [7:0] shift;
+wire shift_left;
+wire [4:0] shift_right;
 
 assign shift = 
     (one_mantissa_d_48bit[47:47] == 1'b1) ? 0 :
@@ -54,37 +71,15 @@ assign shift =
     (one_mantissa_d_48bit[25:25] == 1'b1) ? 21 :
     (one_mantissa_d_48bit[24:24] == 1'b1) ? 22 : 23;
 
+assign shift_right = 5'd0;
 assign shift_left =
-    {1'b0, s[30:23]} + {1'b0, t[30:23]} < {1'b0, shift} + 9'd127 ? 8'd0 : shift;
+    {1'b0, exponent_s} + {1'b0, exponent_t} < {1'b0, shift} + 9'd127 ? 8'd0 : shift;
 
 // 正規化する
-assign one_mantissa_d_scaled = one_mantissa_d_48bit << shift_left;
-
-// carryがあるか調べる(非正規化数になったら適切にシフトする)
-assign carry = one_mantissa_d_48bit[47:47];
-
-endmodule
-
-module fmul_stage3(
-  input wire [31:0] s,
-  input wire [31:0] t,
-  input wire [47:0] one_mantissa_d_scaled,
-  input wire shift_left,
-  input wire carry,
-  output wire [31:0] d
-);
-
-// 符号1bit、指数8bit、仮数23bitを読み出す
-wire [0:0] sign_s, sign_t, sign_d;
-wire [7:0] exponent_s, exponent_t, exponent_d;
-wire [22:0] mantissa_s, mantissa_t, mantissa_d;
-
-assign sign_s = s[31:31];
-assign sign_t = t[31:31];
-assign exponent_s = s[30:23];
-assign exponent_t = t[30:23];
-assign mantissa_s = s[22:0];
-assign mantissa_t = t[22:0];
+wire [47:0] tmp;
+wire [47:0] one_mantissa_d_scaled;
+assign tmp = one_mantissa_d_48bit >> shift_right;
+assign one_mantissa_d_scaled = tmp << shift_left;
 
 // 繰り上がりの有無で場合分けする
 wire [23:0] one_mantissa_d_24bit;
@@ -175,6 +170,21 @@ assign d =
 
 endmodule
 
+/*
+module fmul_stage1(
+  input wire [31:0] s,
+  input wire [31:0] t,
+  output wire [47:0] mantissa
+);
+
+module fmul_stage2(
+  input wire [31:0] s,
+  input wire [31:0] t,
+  input wire [47:0] mantissa,
+  output wire [31:0] d
+);
+*/
+
 module fmul(
   input wire clk,
   input wire [31:0] s,
@@ -182,25 +192,17 @@ module fmul(
   output wire [31:0] d
 );
 
-reg [31:0] s2, t2, s3, t3;
-wire [47:0] mantissa1_reg, omds2;
-reg [47:0] mantissa2_reg, omds3;
-wire sl2, carry2;
-reg sl3, carry3;
+reg [31:0] s2_reg, t2_reg;
+wire [47:0] mantissa1_reg;
+reg [47:0] mantissa2_reg;
 
 fmul_stage1 u1(s, t, mantissa1_reg);
-fmul_stage2 u2(s2,t2,mantissa2_reg,omds2,sl2,carry2);
-fmul_stage3 u3(s3,t3,omds3,sl3,carry3,d);
+fmul_stage2 u2(s2_reg,t2_reg,mantissa2_reg,d);
 
 always @(posedge clk) begin
-  s2 <= s;
-  t2 <= t;
-  s3 <= s2;
-  t3 <= t2;
+  s2_reg <= s;
+  t2_reg <= t;
   mantissa2_reg <= mantissa1_reg;
-  omds3 <= omds2;
-  sl3 <= sl2;
-  carry3 <= carry2;
 end
 
 endmodule

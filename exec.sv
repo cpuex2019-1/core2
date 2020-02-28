@@ -74,7 +74,7 @@ module exec_inner(
 	fsqrt u_fsqrt(clk, sqrt_s, sqrt_d);
 	ftoi u_ftoi(ftoi_s, ftoi_d);
 	itof u_itof(clk, itof_s, itof_d);
-	floor u_floor(clk,floor_s, floor_d);
+	floor u_floor(floor_s, floor_d);
 
 	reg[5:0] opecode_1, opecode_2, opecode_3;
 	reg[31:0] data_1, data_3;
@@ -128,7 +128,7 @@ module exec_inner(
 
 	assign stall = (is_branch_inst(opecode_1) || opecode_1 == INST_JALR) && pc != next_pc;
 	assign stop = ((do_forward(opecode_1, fmode1, rd_no_1, rs_no) || do_forward(opecode_1, fmode2, rd_no_1, rt_no)) && |wait_1[8:1]) ||
-					(opecode_1 == INST_FDIV && opecode == INST_FMUL && wait_1[3]) ||
+					(opecode_1 == INST_FDIV && opecode == INST_FMUL && wait_1[2]) ||
 					(opecode == INST_OUTB && opecode_1 == INST_OUTB && wait_1[8] && ~uart_wdone) ||
 					(opecode[3:0] == 4'b1111 && opecode_1[3:0] == 4'b1111 && wait_1[8] && ~uart_rdone);
 
@@ -207,19 +207,19 @@ module exec_inner(
 					end else if(opecode == INST_FADD) begin
 						fadd_s <= rs_0;
 						fadd_t <= rt_0;
-						wait_1 <= 9'h4;
+						wait_1 <= 9'h2;
 					end else if(opecode == INST_FSUB) begin
 						fadd_s <= rs_0;
 						fadd_t <= {~rt_0[31], rt_0[30:0]};
-						wait_1 <= 9'h4;
+						wait_1 <= 9'h2;
 					end else if(opecode == INST_FMUL) begin
 						fmul_s <= rs_0;
 						fmul_t <= rt_0;
-						wait_1 <= 9'h4;
+						wait_1 <= 9'h2;
 					end else if(opecode == INST_FDIV) begin
 						fdiv_s <= rs_0;
 						fdiv_t <= rt_0;
-						wait_1 <= 9'h80;
+						wait_1 <= 9'h40;
 					end else if(opecode == INST_FNEG) begin
 						data_1 <= {~rs_0[31], rs_0[30:0]};
 					end else if(opecode == INST_FABS) begin
@@ -229,7 +229,7 @@ module exec_inner(
 						wait_1 <= 9'h20;
 					end else if(opecode == INST_FLOOR) begin
 						floor_s <= rs_0;
-						wait_1 <= 9'h2;
+						wait_1 <= 9'h1;
 					end else if(opecode == INST_FTOI) begin
 						ftoi_s <= rs_0;
 						wait_1 <= 9'h1;
@@ -291,7 +291,7 @@ module exec_inner(
 			if(wait_2[0]) begin
 				wdata <= data_select_2;
 			end
-			if(opecode_1 == INST_FDIV && wait_1[3]) begin
+			if(opecode_1 == INST_FDIV && wait_1[2]) begin
 				fmul_s <= fdiv_s;
 				fmul_t <= finv_d;
 				if(enable) begin
@@ -300,7 +300,7 @@ module exec_inner(
 					opecode_1 <= INST_FMUL;
 				end
 			end
-			if(opecode_2 == INST_FDIV && wait_2[3]) begin
+			if(opecode_2 == INST_FDIV && wait_2[2]) begin
 				fmul_s <= fdiv_s_2;
 				fmul_t <= finv_d;
 				opecode_2 <= INST_FMUL;
