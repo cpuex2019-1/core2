@@ -4,13 +4,15 @@
     parameter INST_LW     = 6'b00_0001;
     parameter INST_SW     = 6'b00_0000;
     parameter INST_LF     = 6'b10_0001;
+    parameter INST_LWR    = 6'b01_0001;
+    parameter INST_LFR    = 6'b11_0001;
     parameter INST_SF     = 6'b01_0000;
     parameter INST_ADD    = 6'b00_0010;
     parameter INST_SUB    = 6'b00_0011;
     parameter INST_MUL    = 6'b00_0100;
     parameter INST_XOR    = 6'b00_0101;
     parameter INST_ADDI   = 6'b00_1000;
-    parameter INST_SLLI   = 6'b00_1001;
+    parameter INST_SI     = 6'b00_1001;
     parameter INST_ORI    = 6'b00_1010;
     parameter INST_FADD   = 6'b11_0010;
     parameter INST_FSUB   = 6'b11_0011;
@@ -44,7 +46,7 @@
 
     function is_write_inst(input [5:0] opecode);
         begin
-            is_write_inst = opecode != INST_SW && opecode != INST_SF &&
+            is_write_inst = opecode[3:0] != 4'b0000 &&
                             opecode != INST_J && opecode != INST_OUTB && ~is_branch_inst(opecode);
         end
     endfunction

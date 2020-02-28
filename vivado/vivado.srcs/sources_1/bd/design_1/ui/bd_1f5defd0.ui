@@ -1,7 +1,7 @@
 {
    "ActiveEmotionalView":"Default View",
    "Default View_ScaleFactor":"0.501304",
-   "Default View_TopLeft":"-172,-164",
+   "Default View_TopLeft":"-172,-199",
    "ExpandedHierarchyInLayout":"",
    "PinnedBlocks":"",
    "PinnedPorts":"",
@@ -10,15 +10,15 @@
 preplace port rs232_uart -pg 1 -lvl 9 -x 2780 -y 550 -defaultsOSRD
 preplace port default_sysclk_300 -pg 1 -lvl 0 -x 0 -y 820 -defaultsOSRD
 preplace port reset -pg 1 -lvl 0 -x 0 -y 840 -defaultsOSRD
-preplace inst core_wrapper_0 -pg 1 -lvl 3 -x 830 -y 160 -defaultsOSRD
 preplace inst axi_uartlite_0 -pg 1 -lvl 8 -x 2640 -y 560 -defaultsOSRD
 preplace inst clk_wiz_0 -pg 1 -lvl 1 -x 130 -y 830 -defaultsOSRD
 preplace inst rst_clk_wiz_0_100M -pg 1 -lvl 2 -x 420 -y 770 -defaultsOSRD
 preplace inst inst_memory -pg 1 -lvl 5 -x 1560 -y 860 -defaultsOSRD
 preplace inst blk_mem_gen_0 -pg 1 -lvl 7 -x 2350 -y 790 -defaultsOSRD
+preplace inst core_wrapper_0 -pg 1 -lvl 3 -x 830 -y 160 -defaultsOSRD
+preplace inst exec_0 -pg 1 -lvl 6 -x 1940 -y 560 -defaultsOSRD
 preplace inst decode_0 -pg 1 -lvl 5 -x 1560 -y 540 -defaultsOSRD
 preplace inst fetch_0 -pg 1 -lvl 4 -x 1180 -y 640 -defaultsOSRD
-preplace inst exec_0 -pg 1 -lvl 6 -x 1940 -y 560 -defaultsOSRD
 preplace inst uart_buffer_0 -pg 1 -lvl 7 -x 2350 -y 570 -defaultsOSRD
 preplace netloc fetch_0_pc 1 4 1 1370 500n
 preplace netloc fetch_0_command 1 4 1 1400 520n
@@ -66,8 +66,8 @@ preplace netloc exec_0_mem_wdata 1 6 1 2190 650n
 preplace netloc exec_0_mem_enable 1 6 1 2160 670n
 preplace netloc exec_0_mem_wea 1 6 1 2120 690n
 preplace netloc axi_uartlite_0_UART 1 8 1 N 550
-preplace netloc default_sysclk_300_1 1 0 1 NJ 820
 preplace netloc uart_buffer_0_uart 1 7 1 N 540
+preplace netloc default_sysclk_300_1 1 0 1 NJ 820
 levelinfo -pg 1 0 130 420 830 1180 1560 1940 2350 2640 2780
 pagesize -pg 1 -db -bbox -sgen -180 0 2900 990
 "

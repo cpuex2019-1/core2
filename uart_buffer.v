@@ -28,8 +28,8 @@ module uart_buffer(
 	input wire rstn
 );
 
-	reg[16383:0] rbuffer;
-	reg[10:0] rhead, rtail;
+	reg[2047:0] rbuffer;
+	reg[7:0] rhead, rtail;
 	reg renable_, rlap;
 	reg[4095:0] wbuffer;
 	reg[8:0] whead, wtail;
@@ -42,9 +42,9 @@ module uart_buffer(
 		wenable_ <= 1'b0;
 		if(~rstn) begin
 			rdata <= 32'h0;
-			rbuffer <= 16384'h0;
-			rhead <= 11'h7fc;
-			rtail <= 11'h7ff;
+			rbuffer <= 2048'h0;
+			rhead <= 8'hfc;
+			rtail <= 8'hff;
 			rlap <= 1'b0;
 			wbuffer <= {8'haa, 4088'h0};
 			whead <= 9'h1ff;
@@ -63,8 +63,9 @@ module uart_buffer(
 			if(renable || renable_) begin
 				if({rlap, rhead} > {1'b0, rtail}) begin
 					rdone <= 1'b1;
-					rdata <= rbuffer[{rhead, 3'h0} +: 14'h20];
-					rhead <= rhead - 11'h4;
+					rdata <= rbuffer[{rhead, 3'h0} +: 11'h20];
+					rhead <= rhead - 8'h4;
+					if(rhead[7:2] == 6'h0) rlap <= 1'b0;
 				end else begin
 					renable_ <= 1'b1;
 				end
@@ -82,9 +83,9 @@ module uart_buffer(
 					uart_rready <= ~uart_bready;
 				end else begin
 					uart_rready <= 1'b0;
-					rbuffer[{rtail, 3'h0} +: 14'h8] <= uart_rdata[7:0];
-					rtail <= rtail - 11'h1;
-					if(rtail == 11'h0) rlap <= 1'b1;
+					rbuffer[{rtail, 3'h0} +: 11'h8] <= uart_rdata[7:0];
+					rtail <= rtail - 8'h1;
+					if(rtail == 8'h0) rlap <= 1'b1;
 				end
 			end
 
